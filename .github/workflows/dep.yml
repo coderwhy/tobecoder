@@ -1,0 +1,29 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: npm install
+      - name: Build
+        run: npm run build
+      - name: Setup SSH and deploy
+        uses: easingthemes/ssh-deploy@v2.1.4
+        with:
+          args: -rltgoDzvO --delete
+          local: './dist'
+          remote: '/root/tobecoder/'
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          REMOTE_HOST: ${{ vars.REMOTE_HOST }}
+          REMOTE_USER: ${{ vars.REMOTE_USER }}
+          SOURCE: 'docs/.vitepress/dist'
+          TARGET: '/root/tobecoder/'
